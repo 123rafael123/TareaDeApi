@@ -15,6 +15,11 @@ namespace EJERCICIO04112025.Services
         {
             _appDbContext = appDbContext;
         }
+        public async Task<List<User>> GetAllUserAsync()
+        {
+            var user = _appDbContext.Users.ToListAsync();
+            return await user;
+        }
         public async Task<User>RegisterUserAsync(RegisterUserDto dto)
         {
             throw new NotImplementedException();

@@ -13,6 +13,19 @@ namespace EJERCICIO04112025.Controllers
         {
             _userService = userService;
         }
+        [HttpGet("obtener")]
+        public async Task<IActionResult> Obtener()
+        {
+            try
+            {
+                var user = await _userService.GetAllUserAsync();
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
 
         [HttpGet("registrar")]
         public async Task<IActionResult> Register(RegisterUserDto dbo)
@@ -21,11 +34,23 @@ namespace EJERCICIO04112025.Controllers
             try
             {
                 var user = await _userService.RegisterUserAsync(dbo);
-                return Ok(new {message="Usuario creado ",user.Id, user.UserName});
+                return Ok(new { message = "Usuario creado ", user.Id, user.UserName });
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return BadRequest(new { error = ex.Message });
+            }
+        }
+        [HttpPut("update")]
+        public async Task<IActionResult> Update(RegisterUserDto dbo)
+        {
+            throw new NotImplementedException();
+        }
+        [HttpDelete("delete")]
+        public async Task<IActionResult> Delete(RegisterUserDto dbo)
+        {
+            throw new NotImplementedException();
         }
     }
 }
