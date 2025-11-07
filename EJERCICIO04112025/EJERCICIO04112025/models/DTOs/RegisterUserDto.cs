@@ -4,8 +4,6 @@ namespace EJERCICIO04112025.models.DTOs
 {
     public class RegisterUserDto
     {
-        // Este DTO solo es para registrar un nuevo usuario
-        // No necesita el Id porque es generado por la base de datos
         [Required, MaxLength(100)]
         public string UserName { get; set; } = string.Empty;
 

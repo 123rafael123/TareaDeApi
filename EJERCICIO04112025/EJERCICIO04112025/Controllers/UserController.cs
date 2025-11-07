@@ -9,17 +9,19 @@ namespace EJERCICIO04112025.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
+
         public UserController(UserService userService)
         {
             _userService = userService;
         }
+
         [HttpGet("obtener")]
         public async Task<IActionResult> Obtener()
         {
             try
             {
-                var user = await _userService.GetAllUserAsync();
-                return Ok(user);
+                var users = await _userService.GetAllUserAsync();
+                return Ok(users);
             }
             catch (Exception ex)
             {
@@ -27,15 +29,13 @@ namespace EJERCICIO04112025.Controllers
             }
         }
 
-        [HttpGet("registrar")]
-        public async Task<IActionResult> Register(RegisterUserDto dbo)
+        [HttpPost("registrar")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
         {
-            throw new NotImplementedException();
             try
             {
-                var user = await _userService.RegisterUserAsync(dbo);
-                return Ok(new { message = "Usuario creado ", user.Id, user.UserName });
-
+                var user = await _userService.RegisterUserAsync(dto);
+                return Ok(new { message = "Usuario creado", user.Id, user.UserName });
             }
             catch (Exception ex)
             {
@@ -43,14 +43,45 @@ namespace EJERCICIO04112025.Controllers
             }
         }
         [HttpPut("update")]
-        public async Task<IActionResult> Update(RegisterUserDto dbo)
+        public async Task<IActionResult> Update([FromBody] RegisterUserDto dto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await _userService.UpdateUserAsync(dto);
+                return Ok(new { message = "Usuario actualizado", user.UserName });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(RegisterUserDto dbo)
+
+        [HttpPut("updateemail")]
+        public async Task<IActionResult> UpdateEmail(string oldEmail, string newEmail)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await _userService.UpdateEmailAsync(oldEmail, newEmail);
+                return Ok(new { message = "Email actualizado", user.Email });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpDelete("delete")]
+        public async Task<IActionResult> Delete(string email)
+        {
+            try
+            {
+                await _userService.DeleteUserAsync(email);
+                return Ok(new { message = "Usuario eliminado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }

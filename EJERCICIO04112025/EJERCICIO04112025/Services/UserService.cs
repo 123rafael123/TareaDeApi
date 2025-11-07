@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using EJERCICIO04112025.Data;
 using EJERCICIO04112025.models;
@@ -11,18 +10,20 @@ namespace EJERCICIO04112025.Services
     public class UserService
     {
         private readonly AppDbContext _appDbContext;
+
         public UserService(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
         }
+
         public async Task<List<User>> GetAllUserAsync()
         {
             var user = _appDbContext.Users.ToListAsync();
             return await user;
         }
-        public async Task<User>RegisterUserAsync(RegisterUserDto dto)
+
+        public async Task<User> RegisterUserAsync(RegisterUserDto dto)
         {
-            throw new NotImplementedException();
             if (await _appDbContext.Users.AnyAsync(u => u.Email == dto.Email))
                 throw new Exception("Email ya registrado");
 
@@ -32,17 +33,64 @@ namespace EJERCICIO04112025.Services
                 UserName = dto.UserName,
                 Password = HashPassword(dto.Password)
             };
+
             _appDbContext.Users.Add(user);
             await _appDbContext.SaveChangesAsync();
+
             return user;
         }
-        public string HashPassword(string password)
+
+
+        public async Task<User> UpdateUserAsync(RegisterUserDto dto)
         {
-            return "";
-            var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
+            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (user == null)
+                throw new Exception("Usuario no encontrado");
+
+            user.UserName = dto.UserName ?? user.UserName;
+            if (!string.IsNullOrEmpty(dto.Password))
+                user.Password = HashPassword(dto.Password);
+
+            _appDbContext.Users.Update(user);
+            await _appDbContext.SaveChangesAsync();
+
+            return user;
+        }
+
+        public async Task<User> UpdateEmailAsync(string oldEmail, string newEmail)
+        {
+            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Email == oldEmail);
+            if (user == null)
+                throw new Exception("Usuario no encontrado");
+
+            if (await _appDbContext.Users.AnyAsync(u => u.Email == newEmail))
+                throw new Exception("El nuevo email ya esta en uso");
+
+            user.Email = newEmail;
+            _appDbContext.Users.Update(user);
+            await _appDbContext.SaveChangesAsync();
+
+            return user;
+        }
+
+        public async Task DeleteUserAsync(string email)
+        {
+            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+                throw new Exception("Usuario no encontrado");
+
+            _appDbContext.Users.Remove(user);
+            await _appDbContext.SaveChangesAsync();
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(password);
+                var hash = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
+            }
         }
     }
 }
