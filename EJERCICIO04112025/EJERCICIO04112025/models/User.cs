@@ -14,5 +14,9 @@ namespace EJERCICIO04112025.models
 
         public DateTime FechaNacimiento { get; set; }
         public int edad;
+        public int RolesId { get; set; }
+        public Roles Role { get; set; }
+
+
     }
 }
